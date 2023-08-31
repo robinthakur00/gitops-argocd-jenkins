@@ -21,7 +21,24 @@ pipeline{
                 script{
                     git credentialsId: 'github',
                     url: 'https://github.com/robinthakur00/gitops-argocd-jenkins.git', 
-                    branch: 'main'
+                    branch: 'master'
+                }
+            }
+        }
+        stage('Building Docker Image'){
+            steps{
+                script{
+                    docker_image = docker.build "${IMAGE_NAME}"
+                }
+            }
+        }
+        stage('Push Docker Image'){
+            steps{
+                script{
+                    docker.withRegistry('', REGISTRY_CREDS){
+                        docker_image.push("$BUILD_NUMBER")
+                        docker_image.push('latest')
+                    }
                 }
             }
         }
